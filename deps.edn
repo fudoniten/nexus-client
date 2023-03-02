@@ -1,0 +1,20 @@
+{
+ :paths ["src"]
+ :deps {
+        org.clojure/clojure { :mvn/version "1.11.1" }
+        org.clojure/data.json { :mvn/version "2.4.0" }
+        org.clojure/core.async { :mvn/version "1.6.673" }
+        slingshot/slingshot { :mvn/version "0.12.2" }
+
+        org.fudo/nexus.crypto {
+                               :git/url "https://git.fudo.org/fudo-public/nexus-crypto.git"
+                               :sha "a3870897ea6a0fa0eed18d0125a31a5c73b25649"
+                               }
+
+        org.fudo/fudo-clojure {
+                               :git/url "https://git.fudo.org/fudo-public/fudo-clojure.git"
+                               :sha "9bef876de89b1e34a1f61b2bb862b77e41ba92b0"
+                               }
+        }
+ :aliases { }
+ }
