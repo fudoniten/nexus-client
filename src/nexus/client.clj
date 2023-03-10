@@ -117,7 +117,10 @@
   (let [server-rank    (atom servers)
         rotate-server! (fn [] (swap! server-rank rotate))
         get-server     (fn [] (first @server-rank))
-        base-req       (fn [] {:server (get-server) :port port :domain domain :hostname hostname})]
+        base-req       (fn [] {:server   (get-server)
+                              :port     port
+                              :domain   domain
+                              :hostname hostname})]
     (reify
       INexusClient
       (send-ipv4! [_ ipv4]
