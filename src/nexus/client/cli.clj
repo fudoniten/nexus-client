@@ -20,7 +20,9 @@
     :default   []
     :update-fn conj]
    ["-H" "--hostname HOSTNAME" "The name of this host."]
-   ["-s" "--server SERVER" "Hostname of the Nexus DDNS server."]
+   ["-s" "--server SERVER" "Hostname(s) of the Nexus DDNS server."
+    :default []
+    :update-fn conj]
    ["-k" "--key-file FILE" "Location of host HMAC key file."]
    ["-p" "--port PORT" "Port on which the Nexus DDNS server is listening."
     :default 80
@@ -109,13 +111,15 @@
   (let [{:keys [options _ errors summary]} (parse-opts args [:server :key-file] cli-opts)]
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
+    (when (-> options :server seq not)
+      (msg-quit 1 (usage summary ["At least one server must be specified."])))
     (let [hostname       (or (:hostname options)
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
                                  (client/connect :domain   domain
                                                  :hostname hostname
-                                                 :server   (:server options)
+                                                 :servers  (:server options)
                                                  :port     (:port options)
                                                  :hmac-key (-> options :key-file slurp)))
                                (:domain options)))
