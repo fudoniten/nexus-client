@@ -108,7 +108,7 @@
         nil))))
 
 (defn -main [& args]
-  (let [{:keys [options _ errors summary]} (parse-opts args [:server :key-file] cli-opts)]
+  (let [{:keys [options _ errors summary]} (parse-opts args #{:server :key-file} cli-opts)]
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (-> options :server seq not)
