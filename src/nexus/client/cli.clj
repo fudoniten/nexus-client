@@ -116,7 +116,7 @@
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (empty? (:server options))
-      (msg-quit 1 (usage summary ["At least one server must be specified."])))
+      (msg-quit 1 (usage summary [(str "At least one server must be specified. Got: " (:server options))])))
     (let [hostname       (or (:hostname options)
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients
