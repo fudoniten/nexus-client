@@ -53,8 +53,8 @@
   ([summary errors] (->> (concat errors
                                  ["usage: nexus-client [opts]"
                                   ""
-                                  "Options:"]
-                                 summary)
+                                  "Options:"
+                                  summary])
                          (str/join \newline))))
 
 (defn- handle-response [logger log-tag resp]
