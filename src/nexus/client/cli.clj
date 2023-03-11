@@ -34,7 +34,9 @@
    ["-D" "--domain DOMAIN" "Domain to which this host belongs. May be specified more than once."
     :default []
     :update-fn conj]
-   ["-h" "--help" "Print this mesage."]])
+   ["-h" "--help" "Print this mesage."]
+   ["-v" "--verbose" "Verbose output."
+    :default false]])
 
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
@@ -109,9 +111,11 @@
 
 (defn -main [& args]
   (let [{:keys [options _ errors summary]} (parse-opts args #{:server :key-file} cli-opts)]
+    (when (:verbose options)
+      (println (str/join " " (keys options))))
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
-    (when (-> options :server seq not)
+    (when (empty? (:server options))
       (msg-quit 1 (usage summary ["At least one server must be specified."])))
     (let [hostname       (or (:hostname options)
                              (-> (InetAddress/getLocalHost) (.getHostName)))
