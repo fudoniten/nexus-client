@@ -5,6 +5,7 @@
             [clojure.tools.cli :as cli]
             [clojure.string :as str]
             [clojure.core.async :refer [chan >!! <!! go-loop timeout alt!]]
+            [clojure.set :as set]
             [fudo-clojure.http.client :as http]
             [fudo-clojure.result :as result])
   (:import java.net.InetAddress)
@@ -38,9 +39,9 @@
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
          :as result}     (cli/parse-opts args cli-opts)
-        label-missing    (comp (filter (partial contains? options))
-                               (map #(format "missing required parameter: %s" %)))
-        missing-errors   (into [] label-missing required)]
+        missing          (set/difference required (-> options keys set))
+        missing-errors   (map #(format "missing required parameter: %s" %)
+                              missing)]
     (update result :errors concat missing-errors)))
 
 (defn- msg-quit [status msg]
