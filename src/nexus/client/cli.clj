@@ -16,7 +16,6 @@
    ["-6" "--ipv6" "Send IPv6 address to the DDNS server."
     :default true]
    ["-f" "--sshfp" "SSH key fingerprint to send. Repeat to send more than one."
-    :multiple  true
     :default   []
     :update-fn conj]
    ["-H" "--hostname HOSTNAME" "The name of this host."]
