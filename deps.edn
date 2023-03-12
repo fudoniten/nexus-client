@@ -15,6 +15,8 @@
                                :git/url "https://git.fudo.org/fudo-public/fudo-clojure.git"
                                :sha "9bef876de89b1e34a1f61b2bb862b77e41ba92b0"
                                }
+
+        io.github.nextjournal/clerk { :mvn/version "0.13.842" }
         }
  :aliases { }
  }

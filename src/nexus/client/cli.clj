@@ -18,10 +18,11 @@
     :default true]
    ["-f" "--sshfp" "SSH key fingerprint to send. Repeat to send more than one."
     :default   []
+    :multi     true
     :update-fn conj]
    ["-H" "--hostname HOSTNAME" "The name of this host."]
    ["-s" "--server SERVER" "Hostname(s) of the Nexus DDNS server."
-    :default []
+    :multi     true
     :update-fn conj]
    ["-k" "--key-file FILE" "Location of host HMAC key file."]
    ["-p" "--port PORT" "Port on which the Nexus DDNS server is listening."
@@ -32,7 +33,7 @@
     :default 360
     :parse-fn #(* 1000 (Integer/parseInt %))]
    ["-D" "--domain DOMAIN" "Domain to which this host belongs. May be specified more than once."
-    :default []
+    :multi     true
     :update-fn conj]
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
