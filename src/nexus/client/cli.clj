@@ -38,12 +38,10 @@
    ["-v" "--verbose" "Verbose output."
     :default false]])
 
-(defn- pthru [o] (clojure.pprint/pprint o) o)
-
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
          :as result}     (cli/parse-opts args cli-opts)
-        missing          (set/difference (pthru required) (pthru (-> options keys set)))
+        missing          (set/difference required (-> options keys set))
         missing-errors   (map #(format "missing required parameter: %s" %)
                               missing)]
     (update result :errors concat missing-errors)))
@@ -117,6 +115,8 @@
       (println (str/join " " (keys options))))
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
+    (when (:verbose options)
+      (clojure.pprint/pprint options))
     (when (empty? (:server options))
       (msg-quit 1 (usage summary ["At least one server must be specified."])))
     (let [hostname       (or (:hostname options)
