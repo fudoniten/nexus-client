@@ -108,11 +108,8 @@
          new-tail (take n coll)]
      (concat new-head new-tail))))
 
-(defn pthru [o] (clojure.pprint/pprint o) o)
-
-(defn- exec! [{:keys [logger] :as client} req]
-  ;; FIXME: if there's an error, try rotating the server
-  (pthru (http/execute-request! client req)))
+(defn- exec! [client req]
+  (http/execute-request! client req))
 
 (defn- make-nexus-client [& { :keys [http-client servers port domain hostname] }]
   (let [server-rank    (atom servers)

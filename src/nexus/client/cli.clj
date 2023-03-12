@@ -60,8 +60,10 @@
                                   summary])
                          (str/join \newline))))
 
+(defn- pthru [o] (clojure.pprint/pprint o) o)
+
 (defn- handle-response [logger log-tag resp]
-  (when (result/success? resp)
+  (when (result/success? (pthru resp))
     (log/info! logger (format "successfully reported %s" log-tag))
     (log/error! logger (format "failed to report %s: %s"
                                log-tag
@@ -131,10 +133,11 @@
                                                  :hmac-key (-> options :key-file slurp)))
                                (:domain options)))
           logger         (log/print-logger)
+          sshfps         (map slurp (:sshfp options))
           stop-chan      (execute! (:delay-seconds options)
                                    logger
                                    client
-                                   (:sshfp options))
+                                   sshfps)
           catch-shutdown (chan)]
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (>!! catch-shutdown true))))
