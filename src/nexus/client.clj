@@ -3,6 +3,7 @@
             [fudo-clojure.http.request :as req]
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [fudo-clojure.logging :refer [error!]]
+            [fudo-clojure.result :as result]
             [nexus.crypto :as crypto]
             [clojure.string :as str]
             [slingshot.slingshot :refer [throw+ try+]])
@@ -107,11 +108,11 @@
          new-tail (take n coll)]
      (concat new-head new-tail))))
 
+(defn pthru [o] (clojure.pprint/pprint o) o)
+
 (defn- exec! [{:keys [logger] :as client} req]
-  (try+ (http/execute-request! client req)
-        ; FIXME: Catch network errors and rotate the server list
-        (catch Exception e
-          (error! logger (str e)))))
+  ;; FIXME: if there's an error, try rotating the server
+  (pthru (http/execute-request! client req)))
 
 (defn- make-nexus-client [& { :keys [http-client servers port domain hostname] }]
   (let [server-rank    (atom servers)
