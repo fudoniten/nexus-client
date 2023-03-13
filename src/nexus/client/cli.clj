@@ -133,11 +133,10 @@
                                                  :hmac-key (-> options :key-file slurp)))
                                (:domain options)))
           logger         (log/print-logger)
-          sshfps         (map slurp (:sshfp options))
           stop-chan      (execute! (:delay-seconds options)
                                    logger
                                    client
-                                   sshfps)
+                                   (:sshfp options))
           catch-shutdown (chan)]
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (>!! catch-shutdown true))))
