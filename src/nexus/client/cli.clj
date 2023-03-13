@@ -16,7 +16,7 @@
     :default true]
    ["-6" "--ipv6" "Send IPv6 address to the DDNS server."
     :default true]
-   ["-f" "--sshfp SSHFP" "SSH key fingerprint to send. Repeat to send more than one."
+   ["-f" "--sshfps SSHFPS_FILE" "Files containing SSHFPs for the current host."
     :default   []
     :multi     true
     :update-fn conj]
@@ -133,10 +133,13 @@
                                                  :hmac-key (-> options :key-file slurp)))
                                (:domain options)))
           logger         (log/print-logger)
+          sshfps         (some->> (:sshfps options)
+                                  (map slurp)
+                                  (mapcat str/split-lines))
           stop-chan      (execute! (:delay-seconds options)
                                    logger
                                    client
-                                   (:sshfp options))
+                                   sshfps)
           catch-shutdown (chan)]
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (>!! catch-shutdown true))))
