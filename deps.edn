@@ -8,12 +8,12 @@
 
         org.fudo/nexus.crypto {
                                :git/url "https://git.fudo.org/fudo-public/nexus-crypto.git"
-                               :sha "a3870897ea6a0fa0eed18d0125a31a5c73b25649"
+                               :git/sha "a3870897ea6a0fa0eed18d0125a31a5c73b25649"
                                }
 
         org.fudo/fudo-clojure {
                                :git/url "https://git.fudo.org/fudo-public/fudo-clojure.git"
-                               :sha "9bef876de89b1e34a1f61b2bb862b77e41ba92b0"
+                               :git/sha "5fd28094e18281ff409050fb1b0dda94b76671ed"
                                }
         }
  :aliases { }
