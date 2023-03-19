@@ -114,12 +114,8 @@
 
 (defn -main [& args]
   (let [{:keys [options _ errors summary]} (parse-opts args #{:server :key-file} cli-opts)]
-    (when (:verbose options)
-      (println (str/join " " (keys options))))
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
-    (when (:verbose options)
-      (clojure.pprint/pprint options))
     (when (empty? (:server options))
       (msg-quit 1 (usage summary ["At least one server must be specified."])))
     (let [hostname       (or (:hostname options)
