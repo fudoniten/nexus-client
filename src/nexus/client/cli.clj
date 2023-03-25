@@ -60,10 +60,8 @@
                                   summary])
                          (str/join \newline))))
 
-(defn- pthru [o] (clojure.pprint/pprint o) o)
-
 (defn- handle-response [logger log-tag resp]
-  (when (result/success? (pthru resp))
+  (when (result/success? resp)
     (log/info! logger (format "successfully reported %s" log-tag))
     (log/error! logger (format "failed to report %s: %s"
                                log-tag
