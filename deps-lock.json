@@ -4,9 +4,9 @@
     {
       "lib": "org.fudo/fudo-clojure",
       "url": "https://git.fudo.org/fudo-public/fudo-clojure.git",
-      "rev": "5fd28094e18281ff409050fb1b0dda94b76671ed",
+      "rev": "ba08b66b864196a21ea41e86ee105b1495462e3b",
       "git-dir": "https/git.fudo.org/fudo-public/fudo-clojure",
-      "hash": "sha256-zwX2KckXGRDOW1eww8Kr/iE/M2JeXISKU44R66I0vlY="
+      "hash": "sha256-lkNgxXcAFXyNmk2xwtDu6doc+gD9AGa8jpUeEk4ZcyM="
     },
     {
       "lib": "org.fudo/nexus.crypto",
@@ -151,6 +151,16 @@
       "mvn-path": "commons-logging/commons-logging/1.2/commons-logging-1.2.pom",
       "mvn-repo": "https://repo1.maven.org/maven2/",
       "hash": "sha256-yRq1qlcNhvb9B8wVjsa8LFAIBAKXLukXn+JBAHOfuyA="
+    },
+    {
+      "mvn-path": "less-awful-ssl/less-awful-ssl/1.0.6/less-awful-ssl-1.0.6.jar",
+      "mvn-repo": "https://repo.clojars.org/",
+      "hash": "sha256-La08mFg/k/YWbpQ6BoMI0kwnQoMC3Ug9p1LibdvPkz0="
+    },
+    {
+      "mvn-path": "less-awful-ssl/less-awful-ssl/1.0.6/less-awful-ssl-1.0.6.pom",
+      "mvn-repo": "https://repo.clojars.org/",
+      "hash": "sha256-/WwwI8r1uJlRAO0Mv41UU9K66+fsjSLUHpoYbs+18sM="
     },
     {
       "mvn-path": "org/apache/apache/13/apache-13.pom",
