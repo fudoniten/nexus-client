@@ -35,6 +35,10 @@
    ["-D" "--domain DOMAIN" "Domain to which this host belongs. May be specified more than once."
     :multi     true
     :update-fn conj]
+   ["-c" "--certificate-authority CA" "Certificate authority trusted by the client."
+    :multi     true
+    :update-fn conj
+    :defalut   []]
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
     :default false]])
@@ -120,11 +124,18 @@
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
-                                 (client/connect :domain   domain
-                                                 :hostname hostname
-                                                 :servers  (:server options)
-                                                 :port     (:port options)
-                                                 :hmac-key (-> options :key-file slurp)))
+                                 (client/connect :domain          domain
+                                                 :hostname        hostname
+                                                 :servers         (:server options)
+                                                 :port            (:port options)
+                                                 :hmac-key        (-> options :key-file slurp)
+                                                 :logger          (log/print-logger)
+                                                 :ca-map          (into {}
+                                                                        (map-indexed
+                                                                         (fn [i cert]
+                                                                           [(keyword (str "ca" i))
+                                                                            cert])
+                                                                         (:certificate-authority options)))))
                                (:domain options)))
           logger         (log/print-logger)
           sshfps         (some->> (:sshfps options)

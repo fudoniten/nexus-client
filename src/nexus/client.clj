@@ -2,8 +2,6 @@
   (:require [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
-            [fudo-clojure.logging :refer [error!]]
-            [fudo-clojure.result :as result]
             [nexus.crypto :as crypto]
             [clojure.string :as str]
             [slingshot.slingshot :refer [throw+ try+]])
@@ -17,55 +15,49 @@
 (defn- build-path [& elems]
   (str "/" (str/join "/" (map to-path-elem elems))))
 
-(defn- send-ipv4-request
-  [& {:keys [hostname domain server port ip]}]
+(defn- base-request [server port]
   (-> (req/base-request)
-      (req/as-put)
-      (req/with-body (str ip))
       (req/with-host server)
       (req/with-port port)
+      (req/with-option :insecure? true)))
+
+(defn- send-ipv4-request
+  [& {:keys [hostname domain server port ip]}]
+  (-> (base-request server port)
+      (req/as-put)
+      (req/with-body (str ip))
       (req/with-path (build-path :api domain hostname :ipv4))))
 
 (defn- send-ipv6-request
   [& {:keys [hostname domain server port ip]}]
-  (-> (req/base-request)
+  (-> (base-request server port)
       (req/as-put)
       (req/with-body (str ip))
-      (req/with-host server)
-      (req/with-port port)
       (req/with-path (build-path :api domain hostname :ipv6))))
 
 (defn- send-sshfps-request
   [& {:keys [hostname domain server port sshfps]}]
-  (-> (req/base-request)
+  (-> (base-request server port)
       (req/as-put)
       (req/with-body sshfps)
-      (req/with-host server)
-      (req/with-port port)
       (req/with-path (build-path :api domain hostname :sshfps))))
 
 (defn- get-ipv4-request
   [& {:keys [hostname domain server port]}]
-  (-> (req/base-request)
+  (-> (base-request server port)
       (req/as-get)
-      (req/with-host server)
-      (req/with-port port)
       (req/with-path (build-path :api domain hostname :ipv4))))
 
 (defn- get-ipv6-request
   [& {:keys [hostname domain server port]}]
-  (-> (req/base-request)
+  (-> (base-request server port)
       (req/as-get)
-      (req/with-host server)
-      (req/with-port port)
       (req/with-path (build-path :api domain hostname :ipv6))))
 
 (defn- get-sshfps-request
   [& {:keys [hostname domain server port]}]
-  (-> (req/base-request)
+  (-> (base-request server port)
       (req/as-get)
-      (req/with-host server)
-      (req/with-port port)
       (req/with-path (build-path :api domain hostname :sshfps))))
 
 (defn- make-signature-generator [hmac-key-str]
@@ -138,10 +130,10 @@
       (switch-server! [_] (rotate-server!)))))
 
 (defn connect
-  [& {:keys [domain hostname servers port hmac-key logger]
-      :or   {port 80}}]
+  [& {:keys [domain hostname servers port hmac-key logger]}]
   (let [authenticator (make-request-authenticator {::hmac-key hmac-key ::hostname hostname})]
-    (make-nexus-client :http-client (http/json-client :authenticator authenticator :logger logger)
+    (make-nexus-client :http-client (http/json-client :authenticator   authenticator
+                                                      :logger          logger)
                        :servers     servers
                        :port        port
                        :domain      domain

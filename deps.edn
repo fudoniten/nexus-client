@@ -13,7 +13,7 @@
 
         org.fudo/fudo-clojure {
                                :git/url "https://git.fudo.org/fudo-public/fudo-clojure.git"
-                               :git/sha "fc397f5ad4a9d3993f0959e6240c28a582aebcf2"
+                               :git/sha "ba08b66b864196a21ea41e86ee105b1495462e3b"
                                }
         }
  :aliases { }
