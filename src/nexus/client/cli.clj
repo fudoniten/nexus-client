@@ -75,36 +75,42 @@
        (filter ip/public?)
        (first)))
 
-(defn- report-ipv4! [logger client]
+(defn- report-ipv4! [logger client verbose]
   (let [ip (get-public-ipv4)]
     (if ip
-      (client/send-ipv4! client ip)
+      (do
+        (when verbose (println (str "reporting v4 ip: " ip)))
+        (client/send-ipv4! client ip))
       (log/info! logger "no public ipv4 address found, skipping"))))
 
-(defn- report-ipv6! [logger client]
+(defn- report-ipv6! [logger client verbose]
   (let [ip (get-public-ipv6)]
     (if ip
-      (client/send-ipv6! client ip)
+      (do
+        (when verbose (println (str "reporting v6 ip: " ip)))
+        (client/send-ipv6! client ip))
       (log/info! logger "no public ipv6 address found, skipping"))))
 
-(defn- report-sshfps! [logger client sshfps]
+(defn- report-sshfps! [logger client sshfps verbose]
   (if (seq sshfps)
-    (client/send-sshfps! client sshfps)
+    (do
+      (when verbose (println (str "reporting " (count sshfps) " ssh fingerprints")))
+      (client/send-sshfps! client sshfps))
     (log/info! logger "no sshfps provided, skipping")))
 
-(defn- report-ips! [logger client]
+(defn- report-ips! [logger client verbose]
   (try+
-   (do (report-ipv4! logger client)
-       (report-ipv6! logger client))
+   (do (report-ipv4! logger client verbose)
+       (report-ipv6! logger client verbose))
    (catch Exception e
      (println (.toString e)))))
 
-(defn- execute! [timeout-ms logger client sshfps]
-  (report-sshfps! logger client sshfps)
+(defn- execute! [& {:keys [timeout-ms logger client sshfps verbose]}]
+  (report-sshfps! logger client sshfps verbose)
   (let [stop-chan (chan)]
     (go-loop [continue true]
       (if continue
-        (do (report-ips! logger client)
+        (do (report-ips! logger client verbose)
             (recur (alt! (timeout timeout-ms) true
                          stop-chan            false)))
         nil))))
@@ -136,10 +142,11 @@
           sshfps         (some->> (:sshfps options)
                                   (map slurp)
                                   (mapcat str/split-lines))
-          stop-chan      (execute! (:delay-seconds options)
-                                   logger
-                                   client
-                                   sshfps)
+          stop-chan      (execute! :timeout-ms (:delay-seconds options)
+                                   :logger     logger
+                                   :client     client
+                                   :sshfps     sshfps
+                                   :verbose    (:verbose options))
           catch-shutdown (chan)]
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (>!! catch-shutdown true))))
