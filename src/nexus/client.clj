@@ -7,6 +7,8 @@
             [slingshot.slingshot :refer [throw+ try+]])
   (:import javax.crypto.Mac))
 
+(defn- pthru [o] (clojure.pprint/pprint o) o)
+
 (defn- to-path-elem [el]
   (cond (keyword? el) (name el)
         (string? el)  el
@@ -74,7 +76,7 @@
     (fn [req]
       (let [timestamp    (-> req (req/timestamp) (instant-to-epoch-timestamp) (str))
             req-str (str (-> req (req/method) (name))
-                         (-> req (req/uri))
+                         (-> req (req/request-path) (str/replace #"\?$" ""))
                          timestamp
                          (-> req (req/body)))
             sig     (sign req-str)]

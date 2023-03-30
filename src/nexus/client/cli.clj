@@ -6,8 +6,7 @@
             [clojure.string :as str]
             [clojure.core.async :refer [chan >!! <!! go-loop timeout alt!]]
             [clojure.set :as set]
-            [fudo-clojure.http.client :as http]
-            [fudo-clojure.result :as result])
+            [slingshot.slingshot :refer [try+]])
   (:import java.net.InetAddress)
   (:gen-class))
 
@@ -64,13 +63,6 @@
                                   summary])
                          (str/join \newline))))
 
-(defn- handle-response [logger log-tag resp]
-  (when (result/success? resp)
-    (log/info! logger (format "successfully reported %s" log-tag))
-    (log/error! logger (format "failed to report %s: %s"
-                               log-tag
-                               (http/status-message resp)))))
-
 (defn- get-public-ipv4 []
   (->> (ip/get-host-ips)
        (filter ip/ipv4?)
@@ -86,23 +78,26 @@
 (defn- report-ipv4! [logger client]
   (let [ip (get-public-ipv4)]
     (if ip
-      (handle-response logger "ipv4 address" (client/send-ipv4! client ip))
+      (client/send-ipv4! client ip)
       (log/info! logger "no public ipv4 address found, skipping"))))
 
 (defn- report-ipv6! [logger client]
   (let [ip (get-public-ipv6)]
     (if ip
-      (handle-response logger "ipv6 address" (client/send-ipv6! client ip))
+      (client/send-ipv6! client ip)
       (log/info! logger "no public ipv6 address found, skipping"))))
 
 (defn- report-sshfps! [logger client sshfps]
   (if (seq sshfps)
-    (handle-response logger "ssh fingerprints" (client/send-sshfps! client sshfps))
+    (client/send-sshfps! client sshfps)
     (log/info! logger "no sshfps provided, skipping")))
 
 (defn- report-ips! [logger client]
-  (report-ipv4! logger client)
-  (report-ipv6! logger client))
+  (try+
+   (do (report-ipv4! logger client)
+       (report-ipv6! logger client))
+   (catch Exception e
+     (println (.toString e)))))
 
 (defn- execute! [timeout-ms logger client sshfps]
   (report-sshfps! logger client sshfps)
