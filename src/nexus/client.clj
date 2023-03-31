@@ -7,8 +7,6 @@
             [slingshot.slingshot :refer [throw+ try+]])
   (:import javax.crypto.Mac))
 
-(defn- pthru [o] (clojure.pprint/pprint o) o)
-
 (defn- to-path-elem [el]
   (cond (keyword? el) (name el)
         (string? el)  el
@@ -102,10 +100,11 @@
          new-tail (take n coll)]
      (concat new-head new-tail))))
 
-(defn- exec! [client req]
+(defn- exec! [client verbose req]
   (http/execute-request! client req))
 
-(defn- make-nexus-client [& { :keys [http-client servers port domain hostname] }]
+(defn- make-nexus-client [& { :keys [http-client servers port domain hostname verbose]
+                              :or   {verbose false}}]
   (let [server-rank    (atom servers)
         rotate-server! (fn [] (swap! server-rank rotate))
         get-server     (fn [] (first @server-rank))
@@ -116,30 +115,31 @@
     (reify
       INexusClient
       (send-ipv4! [_ ipv4]
-        (exec! http-client (send-ipv4-request (assoc (base-req) :ip ipv4))))
+        (exec! http-client verbose (send-ipv4-request (assoc (base-req) :ip ipv4))))
       (send-ipv6! [_ ipv6]
-        (exec! http-client (send-ipv6-request (assoc (base-req) :ip ipv6))))
+        (exec! http-client verbose (send-ipv6-request (assoc (base-req) :ip ipv6))))
       (send-sshfps! [_ sshfps]
-        (exec! http-client (send-sshfps-request (assoc (base-req) :sshfps sshfps))))
+        (exec! http-client verbose (send-sshfps-request (assoc (base-req) :sshfps sshfps))))
 
       (get-ipv4! [_]
-        (exec! http-client (get-ipv4-request (base-req))))
+        (exec! http-client verbose (get-ipv4-request (base-req))))
       (get-ipv6! [_]
-        (exec! http-client (get-ipv6-request (base-req))))
+        (exec! http-client verbose (get-ipv6-request (base-req))))
       (get-sshfps! [_]
-        (exec! http-client (get-sshfps-request (base-req))))
+        (exec! http-client verbose (get-sshfps-request (base-req))))
 
       (switch-server! [_] (rotate-server!)))))
 
 (defn connect
-  [& {:keys [domain hostname servers port hmac-key logger]}]
+  [& {:keys [domain hostname servers port hmac-key logger verbose]}]
   (let [authenticator (make-request-authenticator {::hmac-key hmac-key ::hostname hostname})]
     (make-nexus-client :http-client (http/json-client :authenticator   authenticator
                                                       :logger          logger)
                        :servers     servers
                        :port        port
                        :domain      domain
-                       :hostname    hostname)))
+                       :hostname    hostname
+                       :verbose     verbose)))
 
 (defn combine-nexus-clients [clients]
   (reify INexusClient

@@ -125,18 +125,19 @@
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
-                                 (client/connect :domain          domain
-                                                 :hostname        hostname
-                                                 :servers         (:server options)
-                                                 :port            (:port options)
-                                                 :hmac-key        (-> options :key-file slurp)
-                                                 :logger          (log/print-logger)
-                                                 :ca-map          (into {}
-                                                                        (map-indexed
-                                                                         (fn [i cert]
-                                                                           [(keyword (str "ca" i))
-                                                                            cert])
-                                                                         (:certificate-authority options)))))
+                                 (client/connect :verbose  (:verbose options)
+                                                 :domain   domain
+                                                 :hostname hostname
+                                                 :servers  (:server options)
+                                                 :port     (:port options)
+                                                 :hmac-key (-> options :key-file slurp)
+                                                 :logger   (log/print-logger)
+                                                 :ca-map   (into {}
+                                                                 (map-indexed
+                                                                  (fn [i cert]
+                                                                    [(keyword (str "ca" i))
+                                                                     cert])
+                                                                  (:certificate-authority options)))))
                                (:domain options)))
           logger         (log/print-logger)
           sshfps         (some->> (:sshfps options)
