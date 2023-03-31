@@ -117,6 +117,7 @@
     (reify
       INexusClient
       (send-ipv4! [_ ipv4]
+        (println "SENDING FUCKING IPV4 FFS")
         (exec! http-client verbose (send-ipv4-request (assoc (base-req) :ip ipv4))))
       (send-ipv6! [_ ipv6]
         (exec! http-client verbose (send-ipv6-request (assoc (base-req) :ip ipv6))))
