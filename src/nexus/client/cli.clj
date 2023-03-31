@@ -130,6 +130,7 @@
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (empty? (:server options))
       (msg-quit 1 (usage summary ["At least one server must be specified."])))
+    (println "AT LEAST WE'RE GETTING FUCKING HERE MOTHERFUCKER")
     (let [hostname       (or (:hostname options)
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients

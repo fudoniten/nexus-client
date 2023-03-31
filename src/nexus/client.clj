@@ -101,8 +101,10 @@
      (concat new-head new-tail))))
 
 (defn- exec! [client verbose req]
-  (println (str "outgoing " (req/method req) " request to " (req/host req) ": " (req/request-path req)))
-  (println (str "verbose: " verbose))
+  (when verbose
+    (println (str "outgoing " (req/method req)
+                  " request to " (req/host req)
+                  ": " (req/request-path req))))
   (http/execute-request! client req))
 
 (defn- make-nexus-client [& { :keys [http-client servers port domain hostname verbose]
@@ -117,7 +119,6 @@
     (reify
       INexusClient
       (send-ipv4! [_ ipv4]
-        (println "SENDING FUCKING IPV4 FFS")
         (exec! http-client verbose (send-ipv4-request (assoc (base-req) :ip ipv4))))
       (send-ipv6! [_ ipv6]
         (exec! http-client verbose (send-ipv6-request (assoc (base-req) :ip ipv6))))
