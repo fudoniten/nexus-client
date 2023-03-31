@@ -4,9 +4,9 @@
     {
       "lib": "org.fudo/fudo-clojure",
       "url": "https://git.fudo.org/fudo-public/fudo-clojure.git",
-      "rev": "203daf72093f2f185d5c1c2f4e44064ebebac356",
+      "rev": "816e3ad871d0518dd77d706d5b5a20636019ef31",
       "git-dir": "https/git.fudo.org/fudo-public/fudo-clojure",
-      "hash": "sha256-iVJNYDCOEaHKKIv4l4LuP/h7djTmGUGhWXKphUkytnk="
+      "hash": "sha256-q9RxwGzg/yGyia3aHecfxRMg/GdwM10ztzXx8PfEFe4="
     },
     {
       "lib": "org.fudo/nexus.crypto",

@@ -101,6 +101,12 @@
      (concat new-head new-tail))))
 
 (defn- exec! [client verbose req]
+  (when verbose (println (str "outgoing "
+                              (req/method req)
+                              " request to "
+                              (req/host req)
+                              ": "
+                              (req/request-path req))))
   (http/execute-request! client req))
 
 (defn- make-nexus-client [& { :keys [http-client servers port domain hostname verbose]
