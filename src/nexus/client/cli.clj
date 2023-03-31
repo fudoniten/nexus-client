@@ -42,6 +42,14 @@
    ["-v" "--verbose" "Verbose output."
     :default false]])
 
+(defn- capture-stack-trace [e]
+  (let [string-writer (StringWriter.)
+        print-writer  (PrintWriter. string-writer)]
+    (.printStackTrace e print-writer)
+    (.flush print-writer)
+    (.toString string-writer)))
+
+
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
          :as result}     (cli/parse-opts args cli-opts)
@@ -99,11 +107,11 @@
     (log/info! logger "no sshfps provided, skipping")))
 
 (defn- report-ips! [logger client verbose]
-  (try+
-   (do (report-ipv4! logger client verbose)
-       (report-ipv6! logger client verbose))
-   (catch Exception e
-     (println (.toString e)))))
+  (try
+    (report-ipv4! logger client verbose)
+    (report-ipv6! logger client verbose)
+    (catch Exception e
+      (println (capture-stack-trace e)))))
 
 (defn- execute! [& {:keys [timeout-ms logger client sshfps verbose]}]
   (report-sshfps! logger client sshfps verbose)
