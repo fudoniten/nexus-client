@@ -38,7 +38,7 @@
    ["-c" "--certificate-authority CA" "Certificate authority trusted by the client."
     :multi     true
     :update-fn conj
-    :defalut   []]
+    :default   []]
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
     :default false]])
