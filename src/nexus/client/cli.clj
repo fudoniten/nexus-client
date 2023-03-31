@@ -7,7 +7,8 @@
             [clojure.core.async :refer [chan >!! <!! go-loop timeout alt!]]
             [clojure.set :as set]
             [slingshot.slingshot :refer [try+]])
-  (:import java.net.InetAddress)
+  (:import java.net.InetAddress
+           [java.io StringWriter PrintWriter])
   (:gen-class))
 
 (def cli-opts
