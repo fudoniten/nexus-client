@@ -149,7 +149,7 @@
                                                                     [(keyword (str "ca" i))
                                                                      cert])
                                                                   (:certificate-authority options)))))
-                               (pthru (:domain options))))
+                               (:domain options)))
           logger         (log/print-logger)
           sshfps         (some->> (:sshfps options)
                                   (map slurp)

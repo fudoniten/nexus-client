@@ -148,9 +148,9 @@
 
 (defn combine-nexus-clients [clients]
   (reify INexusClient
-    (send-ipv4!   [_ ip]     (map #(send-ipv4! % ip) clients))
-    (send-ipv6!   [_ ip]     (map #(send-ipv6! % ip) clients))
-    (send-sshfps! [_ sshfps] (map #(send-sshfps! % sshfps) clients))
+    (send-ipv4!   [_ ip]     (doseq [client clients] (send-ipv4! client ip)))
+    (send-ipv6!   [_ ip]     (doseq [client clients] (send-ipv6! client ip)))
+    (send-sshfps! [_ sshfps] (doseq [client clients] (send-sshfps! client sshfps)))
 
     (get-ipv4!    [_]        (throw+ {:type ::not-implemented}))
     (get-ipv6!    [_]        (throw+ {:type ::not-implemented}))
