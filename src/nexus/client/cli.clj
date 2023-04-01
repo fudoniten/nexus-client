@@ -5,8 +5,7 @@
             [clojure.tools.cli :as cli]
             [clojure.string :as str]
             [clojure.core.async :refer [chan >!! <!! go-loop timeout alt!]]
-            [clojure.set :as set]
-            [slingshot.slingshot :refer [try+]])
+            [clojure.set :as set])
   (:import java.net.InetAddress
            [java.io StringWriter PrintWriter])
   (:gen-class))
@@ -134,6 +133,7 @@
                              (-> (InetAddress/getLocalHost) (.getHostName)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
+                                 (println (str "initializing domain: ${domain}"))
                                  (client/connect :verbose  (:verbose options)
                                                  :domain   domain
                                                  :hostname hostname
