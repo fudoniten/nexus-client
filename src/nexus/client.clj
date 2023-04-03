@@ -137,7 +137,6 @@
 (defn connect
   [& {:keys [domain hostname servers port hmac-key logger verbose]}]
   (let [authenticator (make-request-authenticator {::hmac-key hmac-key ::hostname hostname})]
-    (println (str "VERBOSE IS: " verbose))
     (make-nexus-client :http-client (http/json-client :authenticator   authenticator
                                                       :logger          logger)
                        :servers     servers

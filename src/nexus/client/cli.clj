@@ -10,8 +10,6 @@
            [java.io StringWriter PrintWriter])
   (:gen-class))
 
-(defn pthru [o] (clojure.pprint/pprint o) o)
-
 (def cli-opts
   [["-4" "--ipv4" "Send IPv4 address to the DDNS server."
     :default true]
