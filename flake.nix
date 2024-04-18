@@ -4,15 +4,26 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-23.11";
     utils.url = "github:numtide/flake-utils";
+    fudo-clojure.url = "git+https://fudo.dev/public/fudo-clojure.git";
+    nexus-crypto.url = "git+https://fudo.dev/public/nexus-crypto.git";
     helpers = {
       url = "git+https://fudo.dev/public/nix-helpers.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, utils, helpers, ... }:
+  outputs = { self, nixpkgs, utils, helpers, fudo-clojure, nexus-crypto, ... }:
     utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
+      let
+        pkgs = import nixpkgs { inherit system; };
+
+        cljLibs = {
+          "org.fudo/fudo-clojure" =
+            fudo-clojure.packages."${system}".fudo-clojure;
+          "org.fudo/nexus.crypto" =
+            nexus-crypto.packages."${system}".nexus-crypto;
+        };
+
       in {
         packages = rec {
           default = nexus-client;
@@ -20,14 +31,15 @@
             name = "org.fudo/nexus-client";
             primaryNamespace = "nexus.client.cli";
             src = ./.;
+            inherit cljLibs;
           };
         };
 
         devShells = rec {
-          default = update-deps;
-          update-deps = pkgs.mkShell {
+          default = updateDeps;
+          updateDeps = pkgs.mkShell {
             buildInputs = with helpers.packages."${system}";
-              [ updateClojureDeps ];
+              [ (updateClojureDeps cljLibs) ];
           };
         };
       });
