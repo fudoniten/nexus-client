@@ -38,6 +38,8 @@
     :multi     true
     :update-fn conj
     :default   []]
+   ["-t" "--tailscale" "Report tailscale IPs instead of public ips."
+    :default false]
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
     :default false]])
@@ -48,7 +50,6 @@
     (.printStackTrace e print-writer)
     (.flush print-writer)
     (.toString string-writer)))
-
 
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
@@ -83,21 +84,31 @@
        (filter ip/public?)
        (first)))
 
-(defn- report-ipv4! [logger client verbose]
-  (let [ip (get-public-ipv4)]
-    (if ip
-      (do
-        (when verbose (println (str "reporting v4 ip: " ip)))
-        (client/send-ipv4! client ip))
-      (log/info! logger "no public ipv4 address found, skipping"))))
+(defn- get-tailscale-ipv4 []
+  (->> (ip/get-host-ips)
+       (filter ip/ipv4?)
+       (filter ip/tailscale?)
+       (first)))
 
-(defn- report-ipv6! [logger client verbose]
-  (let [ip (get-public-ipv6)]
-    (if ip
-      (do
-        (when verbose (println (str "reporting v6 ip: " ip)))
-        (client/send-ipv6! client ip))
-      (log/info! logger "no public ipv6 address found, skipping"))))
+(defn- get-tailscale-ipv6 []
+    (->> (ip/get-host-ips)
+         (filter ip/ipv6?)
+         (filter ip/tailscale?)
+         (first)))
+
+(defn- report-ipv4! [logger client ip verbose]
+  (if ip
+    (do
+      (when verbose (println (str "reporting v4 ip: " ip)))
+      (client/send-ipv4! client ip))
+    (log/info! logger "no public ipv4 address found, skipping")))
+
+(defn- report-ipv6! [logger client ip verbose]
+  (if ip
+    (do
+      (when verbose (println (str "reporting v6 ip: " ip)))
+      (client/send-ipv6! client ip))
+    (log/info! logger "no public ipv6 address found, skipping")))
 
 (defn- report-sshfps! [logger client sshfps verbose]
   (if (seq sshfps)
@@ -106,19 +117,33 @@
       (client/send-sshfps! client sshfps))
     (log/info! logger "no sshfps provided, skipping")))
 
-(defn- report-ips! [logger client verbose]
-  (try
-    (report-ipv4! logger client verbose)
-    (report-ipv6! logger client verbose)
-    (catch Exception e
-      (println (capture-stack-trace e)))))
+(defprotocol DataFetcher
+  (ipv4 [_])
+  (ipv6 [_])
+  (sshfps [_]))
 
-(defn- execute! [& {:keys [timeout-ms logger client sshfps verbose]}]
-  (report-sshfps! logger client sshfps verbose)
+(defn- public-fetcher [sshfps]
+  (reify DataFetcher
+    (ipv4 [_] (get-public-ipv4))
+    (ipv6 [_] (get-public-ipv6))
+    (sshfps [_] sshfps)))
+
+(defn- tailscale-fetcher [sshfps]
+  (reify DataFetcher
+    (ipv4 [_] (get-tailscale-ipv4))
+    (ipv6 [_] (get-tailscale-ipv6))
+    (sshfps [_] sshfps)))
+
+(defn- execute! [& {:keys [timeout-ms logger client sshfps verbose fetcher]}]
+  (report-sshfps! logger client (sshfps fetcher) verbose)
   (let [stop-chan (chan)]
     (go-loop [continue true]
       (if continue
-        (do (report-ips! logger client verbose)
+        (do (try
+              (report-ipv4! logger client (ipv4 fetcher) verbose)
+              (report-ipv6! logger client (ipv6 fetcher) verbose)
+              (catch Exception e
+                (println (capture-stack-trace e))))
             (recur (alt! (timeout timeout-ms) true
                          stop-chan            false)))
         nil))))
@@ -152,10 +177,13 @@
           sshfps         (some->> (:sshfps options)
                                   (map slurp)
                                   (mapcat str/split-lines))
+          data-fetcher   (if (:tailscale options)
+                           (tailscale-fetcher sshfps)
+                           (public-fetcher sshfps))
           stop-chan      (execute! :timeout-ms (:delay-seconds options)
                                    :logger     logger
                                    :client     client
-                                   :sshfps     sshfps
+                                   :fetcher    data-fetcher
                                    :verbose    (:verbose options))
           catch-shutdown (chan)]
       (.addShutdownHook (Runtime/getRuntime)

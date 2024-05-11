@@ -365,11 +365,11 @@
         "utils": "utils_3"
       },
       "locked": {
-        "lastModified": 1713457607,
-        "narHash": "sha256-lraQtZ5cc6B6zpu1Md89bGE0dJSMHlBptgaLzWYHmJg=",
+        "lastModified": 1715446433,
+        "narHash": "sha256-oAQMHTtLEBR5Mr2UPL6dL3WXPPF4Ymmd/oeHpeYrEvU=",
         "ref": "refs/heads/master",
-        "rev": "25467fceddcb9c81180ddb83f3e21f9ef21cd07f",
-        "revCount": 80,
+        "rev": "a47ea64a6402423f709affaf04142d1d002af724",
+        "revCount": 86,
         "type": "git",
         "url": "https://fudo.dev/public/fudo-clojure.git"
       },
@@ -736,11 +736,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1713344939,
-        "narHash": "sha256-jpHkAt0sG2/J7ueKnG7VvLLkBYUMQbXQ2L8OBpVG53s=",
+        "lastModified": 1715218190,
+        "narHash": "sha256-R98WOBHkk8wIi103JUVQF3ei3oui4HvoZcz9tYOAwlk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e402c3eb6d88384ca6c52ef1c53e61bdc9b84ddd",
+        "rev": "9a9960b98418f8c385f52de3b09a63f9c561427a",
         "type": "github"
       },
       "original": {
@@ -796,11 +796,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1713344939,
-        "narHash": "sha256-jpHkAt0sG2/J7ueKnG7VvLLkBYUMQbXQ2L8OBpVG53s=",
+        "lastModified": 1715395895,
+        "narHash": "sha256-DreMqi6+qa21ffLQqhMQL2XRUkAGt3N7iVB5FhJKie4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e402c3eb6d88384ca6c52ef1c53e61bdc9b84ddd",
+        "rev": "71bae31b7dbc335528ca7e96f479ec93462323ff",
         "type": "github"
       },
       "original": {
