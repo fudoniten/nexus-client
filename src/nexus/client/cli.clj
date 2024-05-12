@@ -38,7 +38,9 @@
     :multi     true
     :update-fn conj
     :default   []]
-   ["-t" "--tailscale" "Report tailscale IPs instead of public ips."
+   ["-t" "--tailscale" "Report tailscale IPs instead of public IPs."
+    :default false]
+   ["-P" "--private" "Report priate IPs instead of public IPs."
     :default false]
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
@@ -82,6 +84,18 @@
   (->> (ip/get-host-ips)
        (filter ip/ipv6?)
        (filter ip/public?)
+       (first)))
+
+(defn- get-private-ipv4 []
+  (->> (ip/get-host-ips)
+       (filter ip/ipv4?)
+       (filter ip/private?)
+       (first)))
+
+(defn- get-private-ipv6 []
+  (->> (ip/get-host-ips)
+       (filter ip/ipv6?)
+       (filter ip/private?)
        (first)))
 
 (defn- get-tailscale-ipv4 []
@@ -177,9 +191,9 @@
           sshfps         (some->> (:sshfps options)
                                   (map slurp)
                                   (mapcat str/split-lines))
-          data-fetcher   (if (:tailscale options)
-                           (tailscale-fetcher sshfps)
-                           (public-fetcher sshfps))
+          data-fetcher   (cond (:tailscale options) (tailscale-fetcher sshfps)
+                               (:public options)    (private-fetcher   sshfps)
+                               :else                (public-fetcher sshfps))
           stop-chan      (execute! :timeout-ms (:delay-seconds options)
                                    :logger     logger
                                    :client     client

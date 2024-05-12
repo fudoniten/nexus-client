@@ -1,6 +1,7 @@
 (ns nexus.client
   (:require [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]
+            [fudo-clojure.result :as result]
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [nexus.crypto :as crypto]
             [clojure.string :as str]
@@ -105,7 +106,8 @@
     (println (str "outgoing " (req/method req)
                   " request to " (req/host req)
                   ": " (req/request-path req))))
-  (http/execute-request! client req))
+  (result/send-failure (http/execute-request! client req)
+                       (fn [e] (when verbose (println e)))))
 
 (defn- make-nexus-client [& { :keys [http-client servers port domain hostname verbose]
                               :or   {verbose false}}]
