@@ -137,29 +137,29 @@
     (log/info! logger "no sshfps provided, skipping")))
 
 (defprotocol DataFetcher
-  (ipv4 [_])
-  (ipv6 [_])
+  (ipv4   [_])
+  (ipv6   [_])
   (sshfps [_]))
 
 (defn- public-fetcher [sshfps]
   (reify DataFetcher
-    (ipv4 [_] (get-public-ipv4))
-    (ipv6 [_] (get-public-ipv6))
+    (ipv4   [_] (get-public-ipv4))
+    (ipv6   [_] (get-public-ipv6))
     (sshfps [_] sshfps)))
 
 (defn- private-fetcher [sshfps]
   (reify DataFetcher
-    (ipv4 [_] (get-private-ipv4))
-    (ipv6 [_] (get-private-ipv6))
+    (ipv4   [_] (get-private-ipv4))
+    (ipv6   [_] (get-private-ipv6))
     (sshfps [_] sshfps)))
 
 (defn- tailscale-fetcher [sshfps]
   (reify DataFetcher
-    (ipv4 [_] (get-tailscale-ipv4))
-    (ipv6 [_] (get-tailscale-ipv6))
+    (ipv4   [_] (get-tailscale-ipv4))
+    (ipv6   [_] (get-tailscale-ipv6))
     (sshfps [_] sshfps)))
 
-(defn- execute! [& {:keys [timeout-ms logger client sshfps verbose fetcher]}]
+(defn- execute! [& {:keys [timeout-ms logger client verbose fetcher]}]
   (report-sshfps! logger client (sshfps fetcher) verbose)
   (let [stop-chan (chan)]
     (go-loop [continue true]
@@ -200,11 +200,8 @@
                                (:domain options)))
           logger         (log/print-logger)
           sshfps         (some->> (:sshfps options)
-                                  (pthru)
                                   (map slurp)
-                                  (pthru)
-                                  (mapcat str/split-lines)
-                                  (pthru))
+                                  (mapcat str/split-lines))
           data-fetcher   (cond (:tailscale options) (tailscale-fetcher sshfps)
                                (:public options)    (private-fetcher   sshfps)
                                :else                (public-fetcher    sshfps))
