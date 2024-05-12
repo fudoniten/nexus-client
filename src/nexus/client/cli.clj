@@ -142,6 +142,12 @@
     (ipv6 [_] (get-public-ipv6))
     (sshfps [_] sshfps)))
 
+(defn- private-fetcher [sshfps]
+  (reify DataFetcher
+    (ipv4 [_] (get-private-ipv4))
+    (ipv6 [_] (get-private-ipv6))
+    (sshfps [_] sshfps)))
+
 (defn- tailscale-fetcher [sshfps]
   (reify DataFetcher
     (ipv4 [_] (get-tailscale-ipv4))
