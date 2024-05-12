@@ -11,8 +11,8 @@
       url = "git+https://fudo.dev/public/fudo-clojure.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nexus = {
-      crypto.url = "git+https://fudo.dev/public/nexus-crypto.git";
+    nexus-crypto = {
+      url = "git+https://fudo.dev/public/nexus-crypto.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helpers = {
