@@ -5,7 +5,8 @@
             [clojure.tools.cli :as cli]
             [clojure.string :as str]
             [clojure.core.async :refer [chan >!! <!! go-loop timeout alt!]]
-            [clojure.set :as set])
+            [clojure.set :as set]
+            [clojure.pprint :refer [pprint]])
   (:import java.net.InetAddress
            [java.io StringWriter PrintWriter])
   (:gen-class))
@@ -45,6 +46,10 @@
    ["-h" "--help" "Print this mesage."]
    ["-v" "--verbose" "Verbose output."
     :default false]])
+
+(defn- pthru [o]
+  (pprint o)
+  o)
 
 (defn- capture-stack-trace [e]
   (let [string-writer (StringWriter.)
@@ -195,11 +200,14 @@
                                (:domain options)))
           logger         (log/print-logger)
           sshfps         (some->> (:sshfps options)
+                                  (pthru)
                                   (map slurp)
-                                  (mapcat str/split-lines))
+                                  (pthru)
+                                  (mapcat str/split-lines)
+                                  (pthru))
           data-fetcher   (cond (:tailscale options) (tailscale-fetcher sshfps)
                                (:public options)    (private-fetcher   sshfps)
-                               :else                (public-fetcher sshfps))
+                               :else                (public-fetcher    sshfps))
           stop-chan      (execute! :timeout-ms (:delay-seconds options)
                                    :logger     logger
                                    :client     client
