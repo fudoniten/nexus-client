@@ -528,11 +528,11 @@
         "utils": "utils_8"
       },
       "locked": {
-        "lastModified": 1715535196,
-        "narHash": "sha256-Qm8BRwZGel1TSqiNmWyI33uDVeUxRTHsR7MuMZHMqjw=",
+        "lastModified": 1715563334,
+        "narHash": "sha256-F/kEeybGZlQ5MrsjJ1+cs4Ld8zeSFnOijBtOQ1NULAM=",
         "ref": "refs/heads/master",
-        "rev": "42abbe81f0a6d5f73ad0cc5bbaba7f7137279a15",
-        "revCount": 15,
+        "rev": "144513d16dc9e4b9cab0b027c95c431f098b302a",
+        "revCount": 16,
         "type": "git",
         "url": "https://fudo.dev/public/nexus-crypto.git"
       },
