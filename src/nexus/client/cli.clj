@@ -21,6 +21,10 @@
     :multi     true
     :update-fn conj]
    ["-H" "--hostname HOSTNAME" "The name of this host."]
+   ["-A" "--alias ALIAS" "Aliases referring to this host. May be specified more than once."
+    :default   []
+    :multi     true
+    :update-fn conj]
    ["-s" "--server SERVER" "Hostname(s) of the Nexus DDNS server."
     :multi     true
     :update-fn conj]
@@ -187,6 +191,7 @@
                                  (client/connect :verbose  (:verbose options)
                                                  :domain   domain
                                                  :hostname hostname
+                                                 :aliases  (:alias options)
                                                  :servers  (:server options)
                                                  :port     (:port options)
                                                  :hmac-key (-> options :key-file slurp)
