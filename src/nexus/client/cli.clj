@@ -21,7 +21,8 @@
     :multi     true
     :update-fn conj]
    ["-H" "--hostname HOSTNAME" "The name of this host."]
-   ["-A" "--alias ALIAS" "Aliases referring to this host. May be specified more than once."
+   ["-A" "--alias ALIAS" "Aliases referring to this host. In the format
+   `alias:domain.com`. May be specified more than once."
     :default   []
     :multi     true
     :update-fn conj]
@@ -185,6 +186,11 @@
       (msg-quit 1 (usage summary ["At least one server must be specified."])))
     (let [hostname       (or (:hostname options)
                              (-> (InetAddress/getLocalHost) (.getHostName)))
+          domain-aliases (into {}
+                               (comp (map (fn [[domain pairs]] [domain (map first pairs)])))
+                               (->> (:alias options)
+                                    (map #(str/split % #":"))
+                                    (group-by second)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
                                  (println (str "initializing domain: ${domain}"))
