@@ -197,7 +197,7 @@
                                  (client/connect :verbose  (:verbose options)
                                                  :domain   domain
                                                  :hostname hostname
-                                                 :aliases  (:alias options)
+                                                 :aliases  (get domain-aliases domain [])
                                                  :servers  (:server options)
                                                  :port     (:port options)
                                                  :hmac-key (-> options :key-file slurp)
