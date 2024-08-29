@@ -193,7 +193,8 @@
                                     (group-by second)))
           client         (client/combine-nexus-clients
                           (map (fn [domain]
-                                 (println (str "initializing domain: ${domain}"))
+                                 (when (:verbose options)
+                                   (println (str "initializing domain: " domain)))
                                  (client/connect :verbose  (:verbose options)
                                                  :domain   domain
                                                  :hostname hostname
