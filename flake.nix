@@ -38,6 +38,7 @@
             primaryNamespace = "nexus.client.cli";
             src = ./.;
             inherit cljLibs;
+            version = "0.2.0";
           };
         };
 
