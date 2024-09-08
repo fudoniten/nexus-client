@@ -27,39 +27,39 @@
   (-> (base-request server port)
       (req/as-put)
       (req/with-body (str ip))
-      (req/with-path (build-path :api :v2 domain :host hostname :ipv4))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
 (defn- send-ipv6-request
   [& {:keys [hostname domain server port ip]}]
   (-> (base-request server port)
       (req/as-put)
       (req/with-body (str ip))
-      (req/with-path (build-path :api :v2 domain :host hostname :ipv6))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
 (defn- send-sshfps-request
   [& {:keys [hostname domain server port sshfps]}]
   (-> (base-request server port)
       (req/as-put)
       (req/with-body sshfps)
-      (req/with-path (build-path :api :v2 domain :host hostname :sshfps))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
 (defn- get-ipv4-request
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
-      (req/with-path (build-path :api :v2 domain :host hostname :ipv4))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
 (defn- get-ipv6-request
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
-      (req/with-path (build-path :api :v2 domain :host hostname :ipv6))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
 (defn- get-sshfps-request
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
-      (req/with-path (build-path :api :v2 domain :host hostname :sshfps))))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
 (defn- make-signature-generator [hmac-key-str]
   (let [hmac-key (crypto/decode-key hmac-key-str)
