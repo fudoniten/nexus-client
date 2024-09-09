@@ -11,6 +11,7 @@
 (defn- to-path-elem [el]
   (cond (keyword? el) (name el)
         (string? el)  el
+        (uuid? el)    (str el)
         :else         (throw (ex-info (str "bad path element: " el) {}))))
 
 (defn- build-path [& elems]
