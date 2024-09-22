@@ -61,7 +61,6 @@
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
-
 (defn- make-signature-generator [hmac-key-str]
   (let [hmac-key (crypto/decode-key hmac-key-str)
         hmac (doto (Mac/getInstance (.getAlgorithm hmac-key))
