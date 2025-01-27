@@ -61,6 +61,7 @@
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
+
 (defn- make-signature-generator [hmac-key-str]
   (let [hmac-key (crypto/decode-key hmac-key-str)
         hmac (doto (Mac/getInstance (.getAlgorithm hmac-key))
@@ -73,8 +74,8 @@
   [{hmac-key ::hmac-key hostname ::hostname}]
   (let [sign (make-signature-generator hmac-key)]
     (fn [req]
-      (let [timestamp    (-> req (req/timestamp) (instant-to-epoch-timestamp) (str))
-            req-str (str (-> req (req/method) (name))
+      (let [timestamp    (-> req (req/timestamp)    (instant-to-epoch-timestamp) (str))
+            req-str (str (-> req (req/method)       (name))
                          (-> req (req/request-path) (str/replace #"\?$" ""))
                          timestamp
                          (-> req (req/body)))
