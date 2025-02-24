@@ -125,14 +125,14 @@
     (do
       (when verbose (println (str "reporting v4 ip: " ip)))
       (client/send-ipv4! client ip))
-    (log/info! logger "no public ipv4 address found, skipping")))
+    (log/info! logger "no ipv4 address found, skipping")))
 
 (defn- report-ipv6! [logger client ip verbose]
   (if ip
     (do
       (when verbose (println (str "reporting v6 ip: " ip)))
       (client/send-ipv6! client ip))
-    (log/info! logger "no public ipv6 address found, skipping")))
+    (log/info! logger "no ipv6 address found, skipping")))
 
 (defn- report-sshfps! [logger client sshfps verbose]
   (if (seq sshfps)
