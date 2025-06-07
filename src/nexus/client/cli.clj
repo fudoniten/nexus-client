@@ -214,7 +214,7 @@
 (defn -main
   "Main entry point for the Nexus client CLI."
   [& args]
-  (log/info! (log/print-logger) "Starting Nexus client with arguments:" args)
+  (log/info! (log/print-logger) (format "Starting Nexus client with arguments: %s" args))
   (let [{:keys [options _ errors summary]} (parse-opts args #{:server :key-file} cli-opts)]
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
