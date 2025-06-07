@@ -94,10 +94,13 @@
   [{hmac-key ::hmac-key hostname ::hostname}]
   (let [sign (make-signature-generator hmac-key)]
     (fn [req]
-      (let [timestamp    (-> req (req/timestamp)    (instant-to-epoch-timestamp) (str))
+      (let [timestamp    (-> req (req/timestamp))]
+        (when (nil? timestamp)
+          (throw (ex-info "Timestamp is nil" {:type ::nil-timestamp})))
+        (let [timestamp-str (-> timestamp (instant-to-epoch-timestamp) (str))
             req-str (str (-> req (req/method)       (name))
                          (-> req (req/request-path) (str/replace #"\?$" ""))
-                         timestamp
+                         timestamp-str
                          (-> req (req/body)))
             sig     (sign req-str)]
         (req/with-headers req
