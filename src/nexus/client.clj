@@ -106,7 +106,7 @@
         (req/with-headers req
           {:access-signature sig
            :access-timestamp timestamp
-           :access-hostname  hostname})))))
+           :access-hostname  hostname}))))))
 
 (defprotocol INexusClient
   "Protocol defining the operations for a Nexus client."
@@ -194,4 +194,4 @@
 
     (get-ipv4!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
     (get-ipv6!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
-    (get-sshfps!  [_]        (throw (ex-info "Not implemented" {:type ::not-implemented}))))
+    (get-sshfps!  [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))))
