@@ -14,12 +14,26 @@
       (is (= "localhost" (req/host req)))
       (is (= 8080 (req/port req))))))
 
-(deftest test-put-host-record-request
-  (testing "put-host-record-request function"
-    (let [req (put-host-record-request :ipv4 {:hostname "test" :domain "example.com" :server "localhost" :port 8080 :value "127.0.0.1"})]
+(deftest test-send-ipv4-request
+  (testing "send-ipv4-request function"
+    (let [req (send-ipv4-request :hostname "test" :domain "example.com" :server "localhost" :port 8080 :ip "127.0.0.1")]
       (is (= "PUT" (req/method req)))
       (is (= "/api/v2/domain/example.com/host/test/ipv4" (req/request-path req)))
       (is (= "127.0.0.1" (req/body req))))))
+
+(deftest test-send-ipv6-request
+  (testing "send-ipv6-request function"
+    (let [req (send-ipv6-request :hostname "test" :domain "example.com" :server "localhost" :port 8080 :ip "::1")]
+      (is (= "PUT" (req/method req)))
+      (is (= "/api/v2/domain/example.com/host/test/ipv6" (req/request-path req)))
+      (is (= "::1" (req/body req))))))
+
+(deftest test-send-sshfps-request
+  (testing "send-sshfps-request function"
+    (let [req (send-sshfps-request :hostname "test" :domain "example.com" :server "localhost" :port 8080 :sshfps "sshfp-data")]
+      (is (= "PUT" (req/method req)))
+      (is (= "/api/v2/domain/example.com/host/test/sshfps" (req/request-path req)))
+      (is (= "sshfp-data" (req/body req))))))
 
 (deftest test-make-signature-generator
   (testing "make-signature-generator function"
