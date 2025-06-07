@@ -1,4 +1,8 @@
 (ns nexus.client
+
+  ;; This namespace is part of a dynamic DNS system called Nexus.
+  ;; The client is responsible for reporting local changes to a Nexus server,
+  ;; such as updating IP addresses and SSHFP records for specific hostnames and domains.
   "Namespace for Nexus client operations, including sending and receiving requests."
   (:require [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]
