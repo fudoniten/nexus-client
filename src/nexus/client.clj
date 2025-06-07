@@ -82,12 +82,12 @@
 (defn- make-signature-generator
   "Creates a function to generate HMAC signatures using the provided key."
   [hmac-key-str]
-  (let [hmac-key (crypto/decode-key hmac-key-str)
-        hmac (doto (Mac/getInstance (.getAlgorithm hmac-key))
-               (.init hmac-key))]
+  (let [hmac-key (crypto/decode-key hmac-key-str)]
     (fn [msg]
-      (-> (.doFinal hmac (.getBytes msg))
-          (base64-encode-string)))))
+      (let [hmac (doto (Mac/getInstance (.getAlgorithm hmac-key))
+                   (.init hmac-key))]
+        (-> (.doFinal hmac (.getBytes msg))
+            (base64-encode-string))))))
 
 (defn- make-request-authenticator
   "Creates a request authenticator function using HMAC for signing requests."
