@@ -6,7 +6,7 @@
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [nexus.crypto :as crypto]
             [clojure.string :as str]
-            [slingshot.slingshot :refer [throw+]])
+            )
   (:import javax.crypto.Mac))
 
 ;; This namespace is part of a dynamic DNS system called Nexus.
@@ -186,6 +186,6 @@
     (send-ipv6!   [_ ip]     (doseq [client clients] (send-ipv6! client ip)))
     (send-sshfps! [_ sshfps] (doseq [client clients] (send-sshfps! client sshfps)))
 
-    (get-ipv4!    [_]        (throw+ {:type ::not-implemented}))
-    (get-ipv6!    [_]        (throw+ {:type ::not-implemented}))
-    (get-sshfps!  [_]        (throw+ {:type ::not-implemented}))))
+    (get-ipv4!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
+    (get-ipv6!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
+    (get-sshfps!  [_]        (throw (ex-info "Not implemented" {:type ::not-implemented}))))
