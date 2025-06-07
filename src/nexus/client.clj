@@ -36,6 +36,9 @@
 (defn send-ipv4-request
   "Creates a PUT request to send an IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
+  (log/info "Creating IPv4 request for" hostname "in domain" domain "with IP" ip)
+  (log/info "Creating IPv6 request for" hostname "in domain" domain "with IP" ip)
+  (log/info "Creating SSHFP request for" hostname "in domain" domain)
   (-> (base-request server port)
       (req/as-put)
       (req/with-body (str ip))
@@ -128,12 +131,15 @@
 (defn exec!
   "Executes an HTTP request using the provided client. Logs the request if verbose is true."
   [client verbose req]
+  (log/info "Executing request to" (req/host req) "with method" (req/method req))
   (when verbose
     (println (str "outgoing " (req/method req)
                   " request to " (req/host req)
                   ": " (req/request-path req))))
   (result/send-failure (http/execute-request! client req)
-                       (fn [e] (when verbose (println e)))))
+                       (fn [e]
+                         (log/error "Request execution failed:" e)
+                         (when verbose (println e)))))
 
 (defn make-nexus-client
   "Creates a Nexus client with the specified configuration."
