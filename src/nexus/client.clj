@@ -5,8 +5,7 @@
             [fudo-clojure.result :as result]
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [nexus.crypto :as crypto]
-            [clojure.string :as str]
-            )
+            [clojure.string :as str])
   (:import javax.crypto.Mac))
 
 ;; This namespace is part of a dynamic DNS system called Nexus.
