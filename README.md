@@ -9,10 +9,6 @@ This project is a part of the Nexus dynamic DNS system. The Nexus client is resp
 - Provides a CLI for easy interaction.
 - Uses HMAC for request authentication.
 
-## Installation
-
-To install the Nexus client, clone the repository and ensure you have the necessary dependencies installed. You can use the provided `deps.edn` file to manage dependencies with tools like Clojure CLI.
-
 ## Usage
 
 The Nexus client can be run from the command line. Use the `--help` option to see available commands and options.
@@ -28,10 +24,6 @@ To run the tests, use the following command:
 ```bash
 clojure -M:test
 ```
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request with your changes.
 
 ## License
 
