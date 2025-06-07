@@ -5,8 +5,7 @@
             [fudo-clojure.result :as result]
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [nexus.crypto :as crypto]
-            [clojure.string :as str]
-            [fudo-clojure.logging :as log])
+            [clojure.string :as str])
   (:import javax.crypto.Mac))
 
 ;; This namespace is part of a dynamic DNS system called Nexus.
@@ -30,6 +29,7 @@
   "Creates a base HTTP request with the specified server and port."
   [server port]
   (-> (req/base-request)
+      (req/as-get)
       (req/with-host server)
       (req/with-port port)
       (req/with-option :insecure? true)))
@@ -37,9 +37,6 @@
 (defn send-ipv4-request
   "Creates a PUT request to send an IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
-  (log/info! "Creating IPv4 request for" hostname "in domain" domain "with IP" ip)
-  (log/info! "Creating IPv6 request for" hostname "in domain" domain "with IP" ip)
-  (log/info! "Creating SSHFP request for" hostname "in domain" domain)
   (-> (base-request server port)
       (req/as-put)
       (req/with-body (str ip))
@@ -92,6 +89,8 @@
         (-> (.doFinal hmac (.getBytes msg))
             (base64-encode-string))))))
 
+(defn pthru [o] (clojure.pprint/pprint o) o)
+
 (defn make-request-authenticator
   "Creates a request authenticator function using HMAC for signing requests."
   [{hmac-key ::hmac-key hostname ::hostname}]
@@ -101,10 +100,10 @@
         (when (nil? timestamp)
           (throw (ex-info "Timestamp is nil" {:type ::nil-timestamp})))
         (let [timestamp-str (-> timestamp (instant-to-epoch-timestamp) (str))
-            req-str (str (-> req (req/method)       (name))
-                         (-> req (req/request-path) (str/replace #"\?$" ""))
-                         timestamp-str
-                         (-> req (req/body)))
+              req-str (str (-> req (req/method)       (name))
+                           (-> req (req/request-path) (str/replace #"\?$" ""))
+                           timestamp-str
+                           (-> req (req/body)))
             sig     (sign req-str)]
         (req/with-headers req
           {:access-signature sig
@@ -132,14 +131,12 @@
 (defn exec!
   "Executes an HTTP request using the provided client. Logs the request if verbose is true."
   [client verbose req]
-  (log/info! "Executing request to" (req/host req) "with method" (req/method req))
   (when verbose
     (println (str "outgoing " (req/method req)
                   " request to " (req/host req)
                   ": " (req/request-path req))))
   (result/send-failure (http/execute-request! client req)
                        (fn [e]
-                         (log/error "Request execution failed:" e)
                          (when verbose (println e)))))
 
 (defn make-nexus-client
