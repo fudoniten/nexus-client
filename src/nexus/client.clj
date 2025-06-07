@@ -34,28 +34,29 @@
       (req/with-port port)
       (req/with-option :insecure? true)))
 
-(defn- put-host-record-request
-  "Creates a PUT request to send a host record for a specific type, hostname, and domain."
-  [type {:keys [hostname domain server port value]}]
-  (-> (base-request server port)
-      (req/as-put)
-      (req/with-body (str value))
-      (req/with-path (build-path :api :v2 :domain domain :host hostname type))))
-
 (defn- send-ipv4-request
   "Creates a PUT request to send an IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
-  (put-host-record-request :ipv4 (assoc (base-req hostname) :value ip)))
+  (-> (base-request server port)
+      (req/as-put)
+      (req/with-body (str ip))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
 (defn- send-ipv6-request
   "Creates a PUT request to send an IPv6 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
-  (put-host-record-request :ipv6 (assoc (base-req hostname) :value ip)))
+  (-> (base-request server port)
+      (req/as-put)
+      (req/with-body (str ip))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
 (defn- send-sshfps-request
   "Creates a PUT request to send SSHFP records for a specific hostname and domain."
   [& {:keys [hostname domain server port sshfps]}]
-  (put-host-record-request :sshfps (assoc (base-req hostname) :value sshfps)))
+  (-> (base-request server port)
+      (req/as-put)
+      (req/with-body (str sshfps))
+      (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
 (defn- get-ipv4-request
   "Creates a GET request to retrieve the IPv4 address for a specific hostname and domain."
