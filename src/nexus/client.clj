@@ -1,4 +1,5 @@
 (ns nexus.client
+  "Namespace for Nexus client operations, including sending and receiving requests."
   (:require [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]
             [fudo-clojure.result :as result]
@@ -8,22 +9,29 @@
             [slingshot.slingshot :refer [throw+ try+]])
   (:import javax.crypto.Mac))
 
-(defn- to-path-elem [el]
+(defn- to-path-elem
+  "Converts an element to a path string. Supports keywords, strings, and UUIDs."
+  [el]
   (cond (keyword? el) (name el)
         (string? el)  el
         (uuid? el)    (str el)
         :else         (throw (ex-info (str "bad path element: " el) {}))))
 
-(defn- build-path [& elems]
+(defn- build-path
+  "Builds a URL path from the given elements."
+  [& elems]
   (str "/" (str/join "/" (map to-path-elem elems))))
 
-(defn- base-request [server port]
+(defn- base-request
+  "Creates a base HTTP request with the specified server and port."
+  [server port]
   (-> (req/base-request)
       (req/with-host server)
       (req/with-port port)
       (req/with-option :insecure? true)))
 
 (defn- send-ipv4-request
+  "Creates a PUT request to send an IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
   (-> (base-request server port)
       (req/as-put)
@@ -31,6 +39,7 @@
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
 (defn- send-ipv6-request
+  "Creates a PUT request to send an IPv6 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
   (-> (base-request server port)
       (req/as-put)
@@ -38,6 +47,7 @@
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
 (defn- send-sshfps-request
+  "Creates a PUT request to send SSHFP records for a specific hostname and domain."
   [& {:keys [hostname domain server port sshfps]}]
   (-> (base-request server port)
       (req/as-put)
@@ -45,24 +55,29 @@
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
 (defn- get-ipv4-request
+  "Creates a GET request to retrieve the IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
 (defn- get-ipv6-request
+  "Creates a GET request to retrieve the IPv6 address for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
 (defn- get-sshfps-request
+  "Creates a GET request to retrieve SSHFP records for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
-(defn- make-signature-generator [hmac-key-str]
+(defn- make-signature-generator
+  "Creates a function to generate HMAC signatures using the provided key."
+  [hmac-key-str]
   (let [hmac-key (crypto/decode-key hmac-key-str)
         hmac (doto (Mac/getInstance (.getAlgorithm hmac-key))
                (.init hmac-key))]
@@ -71,6 +86,7 @@
           (base64-encode-string)))))
 
 (defn- make-request-authenticator
+  "Creates a request authenticator function using HMAC for signing requests."
   [{hmac-key ::hmac-key hostname ::hostname}]
   (let [sign (make-signature-generator hmac-key)]
     (fn [req]
@@ -86,6 +102,7 @@
            :access-hostname  hostname})))))
 
 (defprotocol INexusClient
+  "Protocol defining the operations for a Nexus client."
   (send-ipv4!     [_ ipv4])
   (send-ipv6!     [_ ipv6])
   (send-sshfps!   [_ sshfps])
@@ -95,14 +112,16 @@
   (switch-server! [_]))
 
 (defn- rotate
-  "Take a collection and rotate it n steps."
+  "Takes a collection and rotates it n steps."
   ([coll] (rotate coll 1))
   ([coll n]
    (let [new-head (drop n coll)
          new-tail (take n coll)]
      (concat new-head new-tail))))
 
-(defn- exec! [client verbose req]
+(defn- exec!
+  "Executes an HTTP request using the provided client. Logs the request if verbose is true."
+  [client verbose req]
   (when verbose
     (println (str "outgoing " (req/method req)
                   " request to " (req/host req)
@@ -110,7 +129,9 @@
   (result/send-failure (http/execute-request! client req)
                        (fn [e] (when verbose (println e)))))
 
-(defn- make-nexus-client [& { :keys [http-client servers port domain hostnames verbose]
+(defn- make-nexus-client
+  "Creates a Nexus client with the specified configuration."
+  [& { :keys [http-client servers port domain hostnames verbose]
                               :or   {verbose false}}]
   (let [server-rank    (atom servers)
         rotate-server! (fn [] (swap! server-rank rotate))
@@ -142,6 +163,7 @@
       (switch-server! [_] (rotate-server!)))))
 
 (defn connect
+  "Establishes a connection to the Nexus server with the given configuration."
   [& {:keys [domain aliases hostname servers port hmac-key logger verbose]}]
   (let [authenticator (make-request-authenticator {::hmac-key hmac-key ::hostname hostname})]
     (make-nexus-client :http-client (http/json-client :authenticator   authenticator
@@ -152,7 +174,9 @@
                        :hostnames   (concat [hostname] aliases)
                        :verbose     verbose)))
 
-(defn combine-nexus-clients [clients]
+(defn combine-nexus-clients
+  "Combines multiple Nexus clients into a single client that can send requests to all."
+  [clients]
   (reify INexusClient
     (send-ipv4!   [_ ip]     (doseq [client clients] (send-ipv4! client ip)))
     (send-ipv6!   [_ ip]     (doseq [client clients] (send-ipv6! client ip)))
