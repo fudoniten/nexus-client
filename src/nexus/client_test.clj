@@ -1,6 +1,6 @@
-(ns nexus.client-test)
 (ns nexus.client-test
   (:require [clojure.test :refer :all]
+            [fudo-clojure.http.request :as req]
             [nexus.client :refer :all]))
 
 (deftest test-build-path
