@@ -52,10 +52,6 @@
    ["-v" "--verbose" "Verbose output."
     :default false]])
 
-(defn- pthru [o]
-  (pprint o)
-  o)
-
 (defn- capture-stack-trace [e]
   (let [string-writer (StringWriter.)
         print-writer  (PrintWriter. string-writer)]
