@@ -52,6 +52,7 @@
    ["-v" "--verbose" "Verbose output."
     :default false]])
 
+;; Captures the stack trace of an exception as a string.
 (defn- capture-stack-trace [e]
   (let [string-writer (StringWriter.)
         print-writer  (PrintWriter. string-writer)]
@@ -59,6 +60,7 @@
     (.flush print-writer)
     (.toString string-writer)))
 
+;; Parses command-line options and checks for missing required parameters.
 (defn- parse-opts [args required cli-opts]
   (let [{:keys [options]
          :as result}     (cli/parse-opts args cli-opts)
@@ -67,10 +69,12 @@
                               missing)]
     (update result :errors concat missing-errors)))
 
+;; Prints a message and exits the program with the given status.
 (defn- msg-quit [status msg]
   (println msg)
   (System/exit status))
 
+;; Generates a usage message with optional error messages.
 (defn- usage
   ([summary] (usage summary []))
   ([summary errors] (->> (concat errors
@@ -80,57 +84,69 @@
                                   summary])
                          (str/join \newline))))
 
+;; Retrieves the first public IPv4 address of the host.
 (defn- get-public-ipv4 []
   (->> (ip/get-host-ips)
        (filter ip/ipv4?)
        (filter ip/public?)
        (first)))
 
+;; Retrieves the first public IPv6 address of the host.
 (defn- get-public-ipv6 []
   (->> (ip/get-host-ips)
        (filter ip/ipv6?)
        (filter ip/public?)
        (first)))
 
+;; Retrieves the first private IPv4 address of the host.
 (defn- get-private-ipv4 []
   (->> (ip/get-host-ips)
        (filter ip/ipv4?)
        (filter ip/private?)
        (first)))
 
+;; Retrieves the first private IPv6 address of the host.
 (defn- get-private-ipv6 []
   (->> (ip/get-host-ips)
        (filter ip/ipv6?)
        (filter ip/private?)
        (first)))
 
+;; Retrieves the first Tailscale IPv4 address of the host.
 (defn- get-tailscale-ipv4 []
   (->> (ip/get-host-ips)
        (filter ip/ipv4?)
        (filter ip/tailscale?)
        (first)))
 
+;; Retrieves the first Tailscale IPv6 address of the host.
 (defn- get-tailscale-ipv6 []
     (->> (ip/get-host-ips)
          (filter ip/ipv6?)
          (filter ip/tailscale?)
          (first)))
 
+;; Reports the IPv4 address to the Nexus server.
 (defn- report-ipv4! [logger client ip verbose]
+  (log/info! logger (str "Attempting to report IPv4: " ip))
   (if ip
     (do
       (when verbose (println (str "reporting v4 ip: " ip)))
       (client/send-ipv4! client ip))
     (log/info! logger "no ipv4 address found, skipping")))
 
+;; Reports the IPv6 address to the Nexus server.
 (defn- report-ipv6! [logger client ip verbose]
+  (log/info! logger (str "Attempting to report IPv6: " ip))
   (if ip
     (do
       (when verbose (println (str "reporting v6 ip: " ip)))
       (client/send-ipv6! client ip))
     (log/info! logger "no ipv6 address found, skipping")))
 
+;; Reports SSHFP records to the Nexus server.
 (defn- report-sshfps! [logger client sshfps verbose]
+  (log/info! logger (str "Attempting to report SSHFPs: " sshfps))
   (if (seq sshfps)
     (do
       (when verbose (println (str "reporting " (count sshfps) " ssh fingerprints")))
@@ -142,25 +158,30 @@
   (ipv6   [_])
   (sshfps [_]))
 
+;; DataFetcher implementation for public IPs.
 (defn- public-fetcher [sshfps]
   (reify DataFetcher
     (ipv4   [_] (get-public-ipv4))
     (ipv6   [_] (get-public-ipv6))
     (sshfps [_] sshfps)))
 
+;; DataFetcher implementation for private IPs.
 (defn- private-fetcher [sshfps]
   (reify DataFetcher
     (ipv4   [_] (get-private-ipv4))
     (ipv6   [_] (get-private-ipv6))
     (sshfps [_] sshfps)))
 
+;; DataFetcher implementation for Tailscale IPs.
 (defn- tailscale-fetcher [sshfps]
   (reify DataFetcher
     (ipv4   [_] (get-tailscale-ipv4))
     (ipv6   [_] (get-tailscale-ipv6))
     (sshfps [_] sshfps)))
 
+;; Executes the reporting process, periodically sending IP and SSHFP data to the server.
 (defn- execute! [& {:keys [timeout-ms logger client verbose fetcher]}]
+  (log/info! logger "Starting execution loop for reporting.")
   (report-sshfps! logger client (sshfps fetcher) verbose)
   (let [stop-chan (chan)]
     (go-loop [continue true]
@@ -174,7 +195,9 @@
                          stop-chan            false)))
         nil))))
 
+;; Main entry point for the Nexus client CLI.
 (defn -main [& args]
+  (log/info! (log/print-logger) "Starting Nexus client with arguments:" args)
   (let [{:keys [options _ errors summary]} (parse-opts args #{:server :key-file} cli-opts)]
     (when (seq errors)    (msg-quit 1 (usage summary errors)))
     (when (:help options) (msg-quit 0 (usage summary)))
