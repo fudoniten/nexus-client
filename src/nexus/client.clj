@@ -13,7 +13,7 @@
 ;; The client is responsible for reporting local changes to a Nexus server,
 ;; such as updating IP addresses and SSHFP records for specific hostnames and domains.
 
-(defn- to-path-elem
+(defn to-path-elem
   "Converts an element to a path string. Supports keywords, strings, and UUIDs."
   [el]
   (cond (keyword? el) (name el)
@@ -21,12 +21,12 @@
         (uuid? el)    (str el)
         :else         (throw (ex-info (str "bad path element: " el) {}))))
 
-(defn- build-path
+(defn build-path
   "Builds a URL path from the given elements."
   [& elems]
   (str "/" (str/join "/" (map to-path-elem elems))))
 
-(defn- base-request
+(defn base-request
   "Creates a base HTTP request with the specified server and port."
   [server port]
   (-> (req/base-request)
@@ -34,7 +34,7 @@
       (req/with-port port)
       (req/with-option :insecure? true)))
 
-(defn- send-ipv4-request
+(defn send-ipv4-request
   "Creates a PUT request to send an IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
   (-> (base-request server port)
@@ -42,7 +42,7 @@
       (req/with-body (str ip))
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
-(defn- send-ipv6-request
+(defn send-ipv6-request
   "Creates a PUT request to send an IPv6 address for a specific hostname and domain."
   [& {:keys [hostname domain server port ip]}]
   (-> (base-request server port)
@@ -50,7 +50,7 @@
       (req/with-body (str ip))
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
-(defn- send-sshfps-request
+(defn send-sshfps-request
   "Creates a PUT request to send SSHFP records for a specific hostname and domain."
   [& {:keys [hostname domain server port sshfps]}]
   (-> (base-request server port)
@@ -58,28 +58,28 @@
       (req/with-body (str sshfps))
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
-(defn- get-ipv4-request
+(defn get-ipv4-request
   "Creates a GET request to retrieve the IPv4 address for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv4))))
 
-(defn- get-ipv6-request
+(defn get-ipv6-request
   "Creates a GET request to retrieve the IPv6 address for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :ipv6))))
 
-(defn- get-sshfps-request
+(defn get-sshfps-request
   "Creates a GET request to retrieve SSHFP records for a specific hostname and domain."
   [& {:keys [hostname domain server port]}]
   (-> (base-request server port)
       (req/as-get)
       (req/with-path (build-path :api :v2 :domain domain :host hostname :sshfps))))
 
-(defn- make-signature-generator
+(defn make-signature-generator
   "Creates a function to generate HMAC signatures using the provided key."
   [hmac-key-str]
   (let [hmac-key (crypto/decode-key hmac-key-str)]
@@ -89,7 +89,7 @@
         (-> (.doFinal hmac (.getBytes msg))
             (base64-encode-string))))))
 
-(defn- make-request-authenticator
+(defn make-request-authenticator
   "Creates a request authenticator function using HMAC for signing requests."
   [{hmac-key ::hmac-key hostname ::hostname}]
   (let [sign (make-signature-generator hmac-key)]
@@ -118,7 +118,7 @@
   (get-sshfps!    [_])
   (switch-server! [_]))
 
-(defn- rotate
+(defn rotate
   "Takes a collection and rotates it n steps."
   ([coll] (rotate coll 1))
   ([coll n]
@@ -126,7 +126,7 @@
          new-tail (take n coll)]
      (concat new-head new-tail))))
 
-(defn- exec!
+(defn exec!
   "Executes an HTTP request using the provided client. Logs the request if verbose is true."
   [client verbose req]
   (when verbose
@@ -136,7 +136,7 @@
   (result/send-failure (http/execute-request! client req)
                        (fn [e] (when verbose (println e)))))
 
-(defn- make-nexus-client
+(defn make-nexus-client
   "Creates a Nexus client with the specified configuration."
   [& { :keys [http-client servers port domain hostnames verbose]
                               :or   {verbose false}}]
