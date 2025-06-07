@@ -167,7 +167,10 @@
       (get-sshfps! [_]
         (exec! http-client verbose (get-sshfps-request (base-req (first hostnames)))))
 
-      (switch-server! [_] (rotate-server!)))))
+      (switch-server! [_]
+        (rotate-server!)
+        (when verbose
+          (println (str "Switched to server: " (get-server))))))))
 
 (defn connect
   "Establishes a connection to the Nexus server with the given configuration."
