@@ -52,7 +52,7 @@
    ["-v" "--verbose" "Verbose output."
     :default false]])
 
-(defn- capture-stack-trace
+(defn capture-stack-trace
   "Captures the stack trace of an exception as a string."
   [e]
   (let [string-writer (StringWriter.)
@@ -61,7 +61,7 @@
     (.flush print-writer)
     (.toString string-writer)))
 
-(defn- parse-opts
+(defn parse-opts
   "Parses command-line options and checks for missing required parameters."
   [args required cli-opts]
   (let [{:keys [options]
@@ -71,13 +71,13 @@
                               missing)]
     (update result :errors concat missing-errors)))
 
-(defn- msg-quit
+(defn msg-quit
   "Prints a message and exits the program with the given status."
   [status msg]
   (println msg)
   (System/exit status))
 
-(defn- usage
+(defn usage
   "Generates a usage message with optional error messages."
   ([summary] (usage summary []))
   ([summary errors] (->> (concat errors
@@ -87,7 +87,7 @@
                                   summary])
                          (str/join \newline))))
 
-(defn- get-public-ipv4
+(defn get-public-ipv4
   "Retrieves the first public IPv4 address of the host."
   []
   (->> (ip/get-host-ips)
@@ -95,7 +95,7 @@
        (filter ip/public?)
        (first)))
 
-(defn- get-public-ipv6
+(defn get-public-ipv6
   "Retrieves the first public IPv6 address of the host."
   []
   (->> (ip/get-host-ips)
@@ -103,7 +103,7 @@
        (filter ip/public?)
        (first)))
 
-(defn- get-private-ipv4
+(defn get-private-ipv4
   "Retrieves the first private IPv4 address of the host."
   []
   (->> (ip/get-host-ips)
@@ -111,7 +111,7 @@
        (filter ip/private?)
        (first)))
 
-(defn- get-private-ipv6
+(defn get-private-ipv6
   "Retrieves the first private IPv6 address of the host."
   []
   (->> (ip/get-host-ips)
@@ -119,7 +119,7 @@
        (filter ip/private?)
        (first)))
 
-(defn- get-tailscale-ipv4
+(defn get-tailscale-ipv4
   "Retrieves the first Tailscale IPv4 address of the host."
   []
   (->> (ip/get-host-ips)
@@ -127,7 +127,7 @@
        (filter ip/tailscale?)
        (first)))
 
-(defn- get-tailscale-ipv6
+(defn get-tailscale-ipv6
   "Retrieves the first Tailscale IPv6 address of the host."
   []
     (->> (ip/get-host-ips)
@@ -135,7 +135,7 @@
          (filter ip/tailscale?)
          (first)))
 
-(defn- report-ipv4!
+(defn report-ipv4!
   "Reports the IPv4 address to the Nexus server."
   [logger client ip verbose]
   (log/info! logger (str "Attempting to report IPv4: " ip))
@@ -145,7 +145,7 @@
       (client/send-ipv4! client ip))
     (log/info! logger "no ipv4 address found, skipping")))
 
-(defn- report-ipv6!
+(defn report-ipv6!
   "Reports the IPv6 address to the Nexus server."
   [logger client ip verbose]
   (log/info! logger (str "Attempting to report IPv6: " ip))
@@ -155,7 +155,7 @@
       (client/send-ipv6! client ip))
     (log/info! logger "no ipv6 address found, skipping")))
 
-(defn- report-sshfps!
+(defn report-sshfps!
   "Reports SSHFP records to the Nexus server."
   [logger client sshfps verbose]
   (log/info! logger (str "Attempting to report SSHFPs: " sshfps))
@@ -170,7 +170,7 @@
   (ipv6   [_])
   (sshfps [_]))
 
-(defn- public-fetcher
+(defn public-fetcher
   "DataFetcher implementation for public IPs."
   [sshfps]
   (reify DataFetcher
@@ -178,7 +178,7 @@
     (ipv6   [_] (get-public-ipv6))
     (sshfps [_] sshfps)))
 
-(defn- private-fetcher
+(defn private-fetcher
   "DataFetcher implementation for private IPs."
   [sshfps]
   (reify DataFetcher
@@ -186,7 +186,7 @@
     (ipv6   [_] (get-private-ipv6))
     (sshfps [_] sshfps)))
 
-(defn- tailscale-fetcher
+(defn tailscale-fetcher
   "DataFetcher implementation for Tailscale IPs."
   [sshfps]
   (reify DataFetcher
@@ -194,7 +194,7 @@
     (ipv6   [_] (get-tailscale-ipv6))
     (sshfps [_] sshfps)))
 
-(defn- execute!
+(defn execute!
   "Executes the reporting process, periodically sending IP and SSHFP data to the server."
   [& {:keys [timeout-ms logger client verbose fetcher]}]
   (log/info! logger "Starting execution loop for reporting.")
