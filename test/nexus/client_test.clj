@@ -1,7 +1,8 @@
 (ns nexus.client-test
   (:require [clojure.test :refer :all]
             [fudo-clojure.http.request :as req]
-            [nexus.client :refer :all]))
+            [nexus.client :refer :all]
+            [nexus.crypto :refer [generate-key encode-key]]))
 
 (deftest test-to-path-elem
   (testing "to-path-elem function"
@@ -43,12 +44,14 @@
 
 (deftest test-make-signature-generator
   (testing "make-signature-generator function"
-    (let [sign (make-signature-generator "secret-key")]
+    (let [hmac-key (encode-key (generate-key "HmacSHA512"))
+          sign (make-signature-generator hmac-key)]
       (is (string? (sign "message"))))))
 
 (deftest test-make-request-authenticator
   (testing "make-request-authenticator function"
-    (let [authenticator (make-request-authenticator {::hmac-key "secret-key" ::hostname "test-host"})
+    (let [hmac-key (encode-key (generate-key "HmacSHA512"))
+          authenticator (make-request-authenticator {::hmac-key hmac-key ::hostname "test-host"})
           req (base-request "localhost" 8080)
           authenticated-req (authenticator req)]
       (is (contains? (req/headers authenticated-req) :access-signature))
