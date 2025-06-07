@@ -1,5 +1,6 @@
 (ns nexus.client.cli
   (:require [nexus.client :as client]
+            [nexus.hello :refer [hello]]
             [fudo-clojure.ip :as ip]
             [fudo-clojure.logging :as log]
             [clojure.tools.cli :as cli]

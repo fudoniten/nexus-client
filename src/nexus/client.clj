@@ -198,3 +198,9 @@
     (get-ipv4!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
     (get-ipv6!    [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))
     (get-sshfps!  [_]        (throw (ex-info "Not implemented" {:type ::not-implemented})))))
+(ns nexus.hello)
+
+(defn hello
+  "Prints a greeting."
+  []
+  (println "hello"))
