@@ -25,7 +25,7 @@
   (testing "send-ipv6-request function"
     (let [req (send-ipv6-request :hostname "test" :domain "example.com" :server "localhost" :port 8080 :ip "::1")]
       (is (= "PUT" (req/method req)))
-      (is (= "/api/v2/domain/example.com/host/test/ipv6" (req/request-path req)))
+      (is (= "/api/v2/domain/example.com/host/test/ipv6?" (req/request-path req)))
       (is (= "::1" (req/body req))))))
 
 (deftest test-send-sshfps-request
