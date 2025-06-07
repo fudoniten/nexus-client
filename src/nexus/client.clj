@@ -1,8 +1,4 @@
 (ns nexus.client
-
-  ;; This namespace is part of a dynamic DNS system called Nexus.
-  ;; The client is responsible for reporting local changes to a Nexus server,
-  ;; such as updating IP addresses and SSHFP records for specific hostnames and domains.
   "Namespace for Nexus client operations, including sending and receiving requests."
   (:require [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]
@@ -10,8 +6,12 @@
             [fudo-clojure.common :refer [base64-encode-string instant-to-epoch-timestamp]]
             [nexus.crypto :as crypto]
             [clojure.string :as str]
-            [slingshot.slingshot :refer [throw+ try+]])
+            [slingshot.slingshot :refer [throw+]])
   (:import javax.crypto.Mac))
+
+;; This namespace is part of a dynamic DNS system called Nexus.
+;; The client is responsible for reporting local changes to a Nexus server,
+;; such as updating IP addresses and SSHFP records for specific hostnames and domains.
 
 (defn- to-path-elem
   "Converts an element to a path string. Supports keywords, strings, and UUIDs."
