@@ -33,7 +33,7 @@
       in {
         packages = rec {
           default = nexus-client;
-          nexus-client = helpers.packages."${system}".mkClojureBin {
+          nexus-client = helpers.legacyPackages."${system}".mkClojureBin {
             name = "org.fudo/nexus-client";
             primaryNamespace = "nexus.client.cli";
             src = ./.;
@@ -45,7 +45,7 @@
         devShells = rec {
           default = updateDeps;
           updateDeps = pkgs.mkShell {
-            buildInputs = with helpers.packages."${system}";
+            buildInputs = with helpers.legacyPackages."${system}";
               [ (updateClojureDeps cljLibs) ];
           };
         };
